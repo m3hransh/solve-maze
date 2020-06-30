@@ -9,6 +9,9 @@
     :while end))
 ;; *maze* variable for storing our map az matrix
 (setq *maze* nil)
+;;define start and end points here
+(setq *start* '(0 0))
+(setq *end* '(3 0))
 ;; reading from the fiel maze.txt
 (let ((in (open "maze.txt" :if-does-not-exist nil)))
    (when in
@@ -134,5 +137,8 @@
     (format t "~%")
 )
 (terpri)
+(format t "start:~a ~%" *start*) 
+(format t "Goal:~a ~%" *end*) 
+(terpri)
 ;; solve the with starting point (0 0) and end point of (3 0)
-(format t "Plan to find the goal:~% ~a" (solve-maze *maze* '(0 0) '(3 4)))
+(format t "Plan to find the goal:~% ~a" (solve-maze *maze* *start* *end*))
