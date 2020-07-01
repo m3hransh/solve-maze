@@ -1,0 +1,244 @@
+\section{Implementing Maze Solver in Lisp}
+For the implementation, we are using 
+\href{https://en.wikipedia.org/wiki/Common_Lisp}
+{\textbf{Common Lisp}}. Common Lisp (CL) is a dialect of the 
+Lisp programming language, published in ANSI standard.
+\subsection{Map representation}
+For map representation, a simple binary matrix is 
+enough. The 0s are points that agents can take as 
+a path, and 1s are obstacles. For convenience, the 
+program in Listing \ref{lis:get-file} is written to get the map from a file 
+and change it to a 2D-array. Take note, the global variables start and end
+represent our starting and end points.
+\begin{lstlisting}[language=Lisp, style=mystyle,
+                 caption=Getting map from a file and represent it as 2D-array,
+                 label=lis:get-file]
+(defun delimiterp (c) (or (char= c #\Space) (char= c #\,)))
+(defun my-split (string &key (delimiterp #'delimiterp))
+  (loop :for beg = (position-if-not delimiterp string)
+    :then (position-if-not delimiterp string :start (1+ end))
+    :for end = (and beg (position-if delimiterp string :start beg))
+    :when beg :collect (subseq string beg end)
+    :while end))
+;; *maze* variable for storing our map az matrix
+(setq *maze* nil)
+;;define start and end points here
+(setq *start* '(0 0))
+(setq *end* '(3 0))
+;; reading from the fiel maze.txt
+(let ((in (open "maze.txt" :if-does-not-exist nil)))
+   (when in
+      (loop for line = (read-line in nil)
+      
+      while line do (push  (mapcar #'parse-integer (my-split line)) *maze*))
+      (close in)
+   )
+)
+;; function for converting 2d list to 2d-array
+(defun list-to-2d-array (list)
+  (make-array (list (length list)
+                    (length (first list)))
+              :initial-contents list))
+;; shape size of the maze
+(defconstant N (length *maze*))
+(defconstant M (length (first *maze*)))
+;; reverse tge *maze* and convert to the array
+(setf *maze* (list-to-2d-array (reverse *maze*)))
+\end{lstlisting}
+Figure \ref{fig:file-content} shows an example, how we can
+define our file content.
+\begin{figure}[H]
+\centering
+\begin{tabular}{c}
+    
+\begin{lstlisting}[ ]
+0 0 0 0 0 
+1 1 0 1 0 
+1 0 0 1 0
+0 0 1 1 0
+\end{lstlisting}
+\end{tabular}    
+\caption{Example of file content}
+\label{fig:file-content}
+\end{figure}
+
+\subsection{Getting accessible neighbours}
+Listing \ref{lis:get-neighbor} shows a implementation of
+a helper function to get the accessible neighbours from a
+point that is represents by a list (x y). The function also takes
+a hash-table path to check if the neighbour is 
+visited before or not. If the neighbour grid is in the boundry
+of map , is not a obstacle and is not visted before, it will be
+added to the list of the accessible neighbours. And it will be 
+returned by the function.
+
+
+\begin{lstlisting}[language=Lisp, style=mystyle,
+                 caption=Finding accessible neighbours from a specific point,
+                 label=lis:get-neighbor]
+; helper function for finding adjacency grid that we can go from index
+;; with respect to the path that we've visted
+(defun get-neighbors(index path)
+    (let ((neighbors nil))
+    ;; check up
+    (let (( up (list (- (nth 0 index) 1) (nth 1 index)) )) 
+        (if (and (>= (nth 0 up) 0)                       ; if the index is in map
+            (equal (aref *maze* (nth 0 up) (nth 1 up)) 0); there is no obstacle
+            (null (gethash up path))                     ; it's not visited before
+        )
+          (push (list up 'U) neighbors)
+        )
+    )
+    ;; check right
+    (let (( right  (list (nth 0 index) (+ (nth 1 index) 1)) ))
+        (if (and (< (nth 1 right) M)
+            (equal (aref *maze* (nth 0 right) (nth 1 right)) 0)
+            (null (gethash right path))
+        )
+        (push (list right 'R) neighbors)
+        )
+    )
+    ;; check below
+    (let (( down  (list (+ (nth 0 index) 1) (nth 1 index)) ))
+        (if (and (<  (nth 0 down)  N)
+            (equal (aref *maze* (nth 0 down) (nth 1 down)) 0)
+            (null (gethash down path))
+        )
+        (push (list down 'D) neighbors)
+        )
+    )
+    ;; check left
+    (let (( left (list (nth 0 index) (- (nth 1 index) 1)))) 
+        (if (and (>= (nth 1 left) 0) 
+            (equal (aref *maze* (nth 0 left) (nth 1 left)) 0)
+            (null (gethash left path))
+        )
+          (push (list left 'L) neighbors)
+        )
+    )
+    (return-from get-neighbors neighbors);return all possible neighbor accessible from index
+    )
+)
+\end{lstlisting}
+
+\subsection{Solving the Maze}
+Now, we reach our main function for solving 
+the maze. This function takes the map, its 
+starting-point, and end-point. With the 
+help of the \textbf{get-neighbors} function, 
+it will solve the maze by returning the plan. 
+The plan consists of the direction that the 
+agent needs to take at each point in the path 
+to the goal.
+
+\begin{lstlisting}[language=Lisp, style=mystyle,
+                 caption=main function for solving the maze,
+                 label=lis:solve-maze]
+;; solve the maze by getting 2d-array as map
+;; and start as (x y) that specifies the staring point
+;; and end for end point
+(defun solve-maze(maze start end)
+    ;; path hash-table for stroing the path we take to reach to each grid
+    ;; path[p1] = (p0 L) says that we reach to p1 from p0 by going to the left
+    (setq path (make-hash-table :test 'equal) )
+    ;; stack for visiting grid recursively
+    (setq stack nil) 
+    (push start stack)
+    ;; start 
+    (setf (gethash start path) (list -1 -1))
+    (let ((p
+    (loop
+        ;; taking the first element to expand its accessible neighbours
+        (setq el  (car stack))
+        (setf stack (cdr stack))
+        ;; the loop finish when the el is the end point
+        ;; or the stack is empty and that means there is no path to goal
+        (when (or (null el) (equal el end)) (return path))
+        ;; geting el's neighbors
+        (let ((ns (get-neighbors el path) ))
+            (if (not (equal ns nil))
+                (dolist (neighbor ns)
+                (progn
+                    ;; ading the neighbor to the stack
+                    ;; and to the path
+                    (push (car neighbor) stack)
+                    (setf (gethash (car neighbor) path) (list el (cadr neighbor)))
+                )
+                )
+                
+            )
+        
+        )
+    ) ))
+    ;; if there is a path to end point
+    ;; it we'll print the plan
+    (if (gethash end path)
+        (progn
+            (setq  temp end)
+            (setq plan nil)
+            (loop (when (equal temp start) (return  plan))
+                (push (cadr (gethash temp path)) plan)
+                
+                (setf temp (car (gethash temp path)))
+            )
+        )
+        (format t "no path is found!~%")
+    )
+    )
+) 
+\end{lstlisting}   
+
+\subsection{Running the program}
+Now that the main function is completed we can run 
+our program on some inputs. The code in Listing \ref{lis:final}
+shows how with the help of the \textbf{solve-maze} and
+map, starting-point and end-point we can write our final
+part of our program.
+
+\begin{lstlisting}[language=Lisp, style=mystyle,
+                 caption=final part of program,
+                 label=lis:final]
+       ;; printing the map
+(format t "Map:~%")        
+(dotimes (x 4)
+    (dotimes(y 5)
+        (format t "~a " (aref *maze* x y))
+    )
+    (format t "~%")
+)
+(terpri)
+(format t "start:~a ~%" *start*) 
+(format t "Goal:~a ~%" *end*) 
+(terpri)
+;; solve the with starting point (0 0) and end point of (3 0)
+(format t "Plan to find the goal:~% ~a" (solve-maze *maze* *start* *end*))          
+\end{lstlisting}
+Finally, you can see an example of the exection of the program in the
+Listing \ref{lis:execute}. 
+\begin{lstlisting}[language=Bash,
+caption= Exectuion of the program,
+label=lis:execute,
+backgroundcolor=\color{backcolour},
+keywordstyle=\color{magenta},
+otherkeywords={clisp},
+emph={$},
+emphstyle={\color{deepblue}\ttfamily},
+]
+$ cat maze.txt
+0 0 0 0 0 
+1 1 0 1 0 
+1 0 0 1 0
+0 0 1 1 0
+$ clisp maze_solver.lisp
+Map:
+0 0 0 0 0 
+1 1 0 1 0 
+1 0 0 1 0 
+0 0 1 1 0 
+
+start:(0 0) 
+Goal:(3 0) 
+
+Plan to find the goal:
+ (R R D D L D L)
+\end{lstlisting}
