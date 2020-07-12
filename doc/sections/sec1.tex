@@ -8,8 +8,7 @@ For map representation, a simple binary matrix is
 enough. The 0s are points that agents can take as 
 a path, and 1s are obstacles. For convenience, the 
 program in Listing \ref{lis:get-file} is written to get the map from a file 
-and change it to a 2D-array. Take note, the global variables start and end
-represent our starting and end points.
+and change it to a 2D-array.
 \begin{lstlisting}[language=Lisp, style=mystyle,
                  caption=Getting map from a file and represent it as 2D-array,
                  label=lis:get-file]
@@ -23,8 +22,7 @@ represent our starting and end points.
 ;; *maze* variable for storing our map az matrix
 (setq *maze* nil)
 ;;define start and end points here
-(setq *start* '(0 0))
-(setq *end* '(3 0))
+
 ;; reading from the fiel maze.txt
 (let ((in (open "maze.txt" :if-does-not-exist nil)))
    (when in
@@ -64,11 +62,11 @@ define our file content.
 
 \subsection{Getting accessible neighbours}
 Listing \ref{lis:get-neighbor} shows a implementation of
-a helper function to get the accessible neighbours from a
-point that is represents by a list (x y). The function also takes
-a hash-table path to check if the neighbour is 
+a helper function to get the accessible neighbours from the index
+that is represented as a cons cell (x.y). The function also takes
+a list path to check if the neighbour is 
 visited before or not. If the neighbour grid is in the boundry
-of map , is not a obstacle and is not visted before, it will be
+of map (*map* is a global variable), is not a obstacle and is not visted before, it will be
 added to the list of the accessible neighbours. And it will be 
 returned by the function.
 
@@ -76,44 +74,52 @@ returned by the function.
 \begin{lstlisting}[language=Lisp, style=mystyle,
                  caption=Finding accessible neighbours from a specific point,
                  label=lis:get-neighbor]
-; helper function for finding adjacency grid that we can go from index
+(defun check-path(x y)
+    (cond ((atom y) nil)
+    ((equal x (caar y)) x)
+    (t (check-path x (cdr y)))
+    )
+)
+
+
+;; helper function for finding adjacency grid that we can go from index
 ;; with respect to the path that we've visted
 (defun get-neighbors(index path)
     (let ((neighbors nil))
     ;; check up
-    (let (( up (list (- (nth 0 index) 1) (nth 1 index)) )) 
-        (if (and (>= (nth 0 up) 0)                       ; if the index is in map
-            (equal (aref *maze* (nth 0 up) (nth 1 up)) 0); there is no obstacle
-            (null (gethash up path))                     ; it's not visited before
+    (let (( up (cons (- (car index) 1) (cdr index)) )) 
+        (if (and (>= (car up) 0)                       ; if the index is in map
+            (equal (aref *maze* (car up) (cdr up)) 0); there is no obstacle
+            (null (check-path up path))                     ; it's not visited before
         )
-          (push (list up 'U) neighbors)
+          (push (cons up 'U) neighbors)
         )
     )
     ;; check right
-    (let (( right  (list (nth 0 index) (+ (nth 1 index) 1)) ))
-        (if (and (< (nth 1 right) M)
-            (equal (aref *maze* (nth 0 right) (nth 1 right)) 0)
-            (null (gethash right path))
+    (let (( right  (cons (car index) (+ (cdr index) 1)) ))
+        (if (and (< (cdr right) M)
+            (equal (aref *maze* (car right) (cdr right)) 0)
+            (null (check-path right path))
         )
-        (push (list right 'R) neighbors)
+        (push (cons right 'R) neighbors)
         )
     )
     ;; check below
-    (let (( down  (list (+ (nth 0 index) 1) (nth 1 index)) ))
-        (if (and (<  (nth 0 down)  N)
-            (equal (aref *maze* (nth 0 down) (nth 1 down)) 0)
-            (null (gethash down path))
+    (let (( down  (cons (+ (car index) 1) (cdr index)) ))
+        (if (and (<  (car down)  N)
+            (equal (aref *maze* (car down) (cdr down)) 0)
+            (null (check-path down path))
         )
-        (push (list down 'D) neighbors)
+        (push (cons down 'D) neighbors)
         )
     )
     ;; check left
-    (let (( left (list (nth 0 index) (- (nth 1 index) 1)))) 
-        (if (and (>= (nth 1 left) 0) 
-            (equal (aref *maze* (nth 0 left) (nth 1 left)) 0)
-            (null (gethash left path))
+    (let (( left (cons (car index) (- (cdr index) 1)))) 
+        (if (and (>= (cdr left) 0) 
+            (equal (aref *maze* (car left) (cdr left)) 0)
+            (null (check-path left path))
         )
-          (push (list left 'L) neighbors)
+          (push (cons left 'L) neighbors)
         )
     )
     (return-from get-neighbors neighbors);return all possible neighbor accessible from index
@@ -122,70 +128,52 @@ returned by the function.
 \end{lstlisting}
 
 \subsection{Solving the Maze}
-Now, we reach our main function for solving 
-the maze. This function takes the map, its 
-starting-point, and end-point. With the 
-help of the \textbf{get-neighbors} function, 
-it will solve the maze by returning the plan. 
-The plan consists of the direction that the 
-agent needs to take at each point in the path 
-to the goal.
+Now, let's consider our main function for solving the maze
+. This function takes 
+starting-point, end-point , and the path list that we visisted till now. 
+Starting point shows the grid that we are currently in.
+The solve-maze is a recursive function. First it checks if the
+current grid is goal or not, then if is not, use the search-neighbors
+function, that in turn run solve-maze on each neighbor that is accessible
+from the current grid and by putting those neighbors as the current
+grid solve the maze recursively. The function search-neighbors will return
+nil if none of the neighbors has a path to the goal.
 
 \begin{lstlisting}[language=Lisp, style=mystyle,
                  caption=main function for solving the maze,
                  label=lis:solve-maze]
-;; solve the maze by getting 2d-array as map
-;; and start as (x y) that specifies the staring point
-;; and end for end point
-(defun solve-maze(maze start end)
-    ;; path hash-table for stroing the path we take to reach to each grid
-    ;; path[p1] = (p0 L) says that we reach to p1 from p0 by going to the left
-    (setq path (make-hash-table :test 'equal) )
-    ;; stack for visiting grid recursively
-    (setq stack nil) 
-    (push start stack)
-    ;; start 
-    (setf (gethash start path) (list -1 -1))
-    (let ((p
-    (loop
-        ;; taking the first element to expand its accessible neighbours
-        (setq el  (car stack))
-        (setf stack (cdr stack))
-        ;; the loop finish when the el is the end point
-        ;; or the stack is empty and that means there is no path to goal
-        (when (or (null el) (equal el end)) (return path))
-        ;; geting el's neighbors
-        (let ((ns (get-neighbors el path) ))
-            (if (not (equal ns nil))
-                (dolist (neighbor ns)
-                (progn
-                    ;; ading the neighbor to the stack
-                    ;; and to the path
-                    (push (car neighbor) stack)
-                    (setf (gethash (car neighbor) path) (list el (cadr neighbor)))
+; run solve-maze function on others neighbors to find path to the goal point
+(defun search-neighbors(neighbors start end path solve-maze)
+        (cond ((null (car neighbors)) nil) ;if there is no neighbor it returns nil
+            (t ((lambda (x) ; to check if the first neighbor give the answer if not search other neighbors
+                    (cond ((null x) (search-neighbors (cdr neighbors) start end path solve-maze))
+                        (t x) )
+                ;; calling the solve-maze with start point of the neighbor 
+                )(solve-maze (caar neighbors) end 
+                    (append path (list (car neighbors)))
+                    ; and new path that consist of previous
+                 )  ; start and it's direction to the new start 
                 )
-                )
-                
-            )
-        
+                )  
         )
-    ) ))
-    ;; if there is a path to end point
-    ;; it we'll print the plan
-    (if (gethash end path)
-        (progn
-            (setq  temp end)
-            (setq plan nil)
-            (loop (when (equal temp start) (return  plan))
-                (push (cadr (gethash temp path)) plan)
-                
-                (setf temp (car (gethash temp path)))
-            )
+)
+
+; print the plan by taking the path as input
+(defun plan-for-path(x)
+    (cond ((null x) nil)
+        ;; creating a list of directions of the path elements
+        (t (cons (cdar x) (plan-for-path (cdr x)) )
+            
         )
-        (format t "no path is found!~%")
+)
+)
+
+(defun solve-maze(start end path)
+    (cond ((equal start end) (plan-for-path path))
+            (t (search-neighbors (get-neighbors start path) start end path #'solve-maze)
+            )
     )
-    )
-) 
+)
 \end{lstlisting}   
 
 \subsection{Running the program}
@@ -198,7 +186,7 @@ part of our program.
 \begin{lstlisting}[language=Lisp, style=mystyle,
                  caption=final part of program,
                  label=lis:final]
-       ;; printing the map
+     ;; printing the map
 (format t "Map:~%")        
 (dotimes (x 4)
     (dotimes(y 5)
@@ -207,11 +195,11 @@ part of our program.
     (format t "~%")
 )
 (terpri)
-(format t "start:~a ~%" *start*) 
-(format t "Goal:~a ~%" *end*) 
+(format t "start:~a ~%" (cons 0 0)) 
+(format t "Goal:~a ~%" (cons 3 0)) 
 (terpri)
-;; solve the with starting point (0 0) and end point of (3 0)
-(format t "Plan to find the goal:~% ~a" (solve-maze *maze* *start* *end*))          
+;; solve the maze with starting point (0 0) and end point of (3 0)
+(format t "Plan to find the goal:~% ~a" (solve-maze  (cons 0 0) (cons 3 0) (list (cons (cons 0 0) 'S)) ))         
 \end{lstlisting}
 Finally, you can see an example of the exection of the program in the
 Listing \ref{lis:execute}. 
@@ -236,9 +224,37 @@ Map:
 1 0 0 1 0 
 0 0 1 1 0 
 
-start:(0 0) 
-Goal:(3 0) 
+start:(0 . 0) 
+Goal:(3 . 0) 
 
 Plan to find the goal:
- (R R D D L D L)
+ (S R R D D L D L)
+\end{lstlisting}
+
+\begin{lstlisting}[language=Bash,
+caption= Exectuion of the program on a map with no existing path to end,
+label=lis:execute,
+backgroundcolor=\color{backcolour},
+keywordstyle=\color{magenta},
+otherkeywords={clisp},
+emph={$},
+emphstyle={\color{deepblue}\ttfamily},
+]
+$ cat maze.txt
+0 0 0 0 0 
+1 1 1 1 0 
+1 0 0 1 0
+0 0 1 1 0
+$ clisp maze_solver.lisp
+Map:
+0 0 0 0 0 
+1 1 1 1 0 
+1 0 0 1 0 
+0 0 1 1 0 
+
+start:(0 . 0) 
+Goal:(3 . 0) 
+
+Plan to find the goal:
+ Nil
 \end{lstlisting}

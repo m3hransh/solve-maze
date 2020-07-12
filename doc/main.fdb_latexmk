@@ -1,10 +1,10 @@
 # Fdb version 3
-["xdvipdfmx"] 1593584839 "main.xdv" "main.pdf" "main" 1593584839
-  "main.xdv" 1593584839 123628 912bce5056fba875fc91b1e312f0298d "xelatex"
+["xdvipdfmx"] 1594550186 "main.xdv" "main.pdf" "main" 1594550187
+  "main.xdv" 1594550186 117900 2ff5f388c029dafe19c9659605b443b1 "xelatex"
   (generated)
   "main.pdf"
-["xelatex"] 1593584837 "/home/mehran/Projects/lisp/doc/main.tex" "main.xdv" "main" 1593584839
-  "/dev/null" 1593578532 0 d41d8cd98f00b204e9800998ecf8427e ""
+["xelatex"] 1594550184 "/home/mehran/Projects/lisp/doc/main.tex" "main.xdv" "main" 1594550187
+  "/dev/null" 1594524628 0 d41d8cd98f00b204e9800998ecf8427e ""
   "/home/mehran/Projects/lisp/doc/main.tex" 1593584800 419 4f9ac061e609a6c0fe835c248f7eac15 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136768653 1528 f853c4d1b4e0550255e02831fdc8496f ""
@@ -248,17 +248,17 @@
   "/usr/local/texlive/2019/texmf.cnf" 1575639058 455 5b996dcaa0eb4ef14a83b026bc0a008c ""
   "images/Bu_Ali_Sina_University.png" 1591615047 48773 56616fbd3089ff8b4902ca590c646426 ""
   "images/map.png" 1591024720 15337 6b142315a6c398f9e3cf3c3f5c75ac6b ""
-  "main.aux" 1593584839 3401 b47b60ff90a7430fee7dd6723833bc11 "xelatex"
-  "main.out" 1593584839 432 7e401d50a08a95d874ccd362975434c2 "xelatex"
+  "main.aux" 1594550186 3677 86d7223fa2e1ca3a86adeb8dd610765e "xelatex"
+  "main.out" 1594550186 432 7e401d50a08a95d874ccd362975434c2 "xelatex"
   "main.tex" 1593584800 419 4f9ac061e609a6c0fe835c248f7eac15 ""
-  "main.toc" 1593584839 550 4f67ab78d94a638d4bbc32e3f3c6be23 "xelatex"
+  "main.toc" 1594550186 550 ee2fa3389c7b36b219278f38addf4a17 "xelatex"
   "mystyle.sty" 1593509822 5078 b77ee9005022e45cd04c0c39a638a343 ""
   "sections/intro.tex" 1593579546 594 b414d5d5dec484f1f5df8c559d04b860 ""
-  "sections/sec1.tex" 1593584524 8139 86e09c37276cc37c5e4741d41986bf86 ""
+  "sections/sec1.tex" 1594550182 8406 7b52ed9bb9196ef0301fd988f13b044a ""
   "sections/summary.tex" 1593584836 282 98a19f1b94963f86b14f038af00284e9 ""
   (generated)
+  "main.toc"
+  "main.out"
   "main.log"
   "main.xdv"
   "main.aux"
-  "main.out"
-  "main.toc"
