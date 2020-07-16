@@ -1,22 +1,4 @@
-\section{Implementing Maze Solver in Lisp}
-For the implementation, we are using 
-\href{https://en.wikipedia.org/wiki/Common_Lisp}
-{\textbf{Common Lisp}}. Common Lisp (CL) is a dialect of the 
-Lisp programming language, published in ANSI standard.
-To implement the maze we need to represent our map. To do so, 
-we will use a simple binary array in Lisp. The \textit{t}s are points that 
-agent can take as 
-a path, and \textit{Nil}s are obstacles. The code is shown in the
-Listing \ref{lis:main}. \textit{solve-maze} is the main function
-that use other helper functions. At first, it will check if the 
-point that we are in is the end point or not and then try to 
-go further by checking it's neighbors and solve them recursively.
-it also remembers the points it is visiting through the way by 
-putting them in visiting list and directoins it took from the starting
-point in the plan list.
-\begin{lstlisting}[language=Lisp, style=mystyle,
-                 caption=Getting map from a file and represent it as 2D-array,
-                 label=lis:main]
+
 (defun list-member (x lst)
     (cond ((null lst) nil)
         ((equal x (car lst)) t)
@@ -85,50 +67,3 @@ point in the plan list.
                         (nil nil t nil t)
                         (nil t t nil t)
                         (t t nil t t))) (cons 0 0) (cons 3 0) (list 'S) (list (cons 0 0))))
-\end{lstlisting}
-Figure \ref{fig:file-content} shows an example, how we can
-define our file content.
-\begin{figure}[H]
-\centering
-\begin{tabular}{c}
-    
-\begin{lstlisting}[ ]
-0 0 0 0 0 
-1 1 0 1 0 
-1 0 0 1 0
-0 0 1 1 0
-\end{lstlisting}
-\end{tabular}    
-\caption{Example of file content}
-\label{fig:file-content}
-\end{figure}
-
-
-
-\subsection{Running the program}
-Listing \ref{lis:execute} is the execution of the program.
-Last line shows the plan that is needed to take to solve
-the maze.
-
-
-\begin{lstlisting}[language=Bash,
-caption= Exectuion of the program,
-label=lis:execute,
-backgroundcolor=\color{backcolour},
-keywordstyle=\color{magenta},
-otherkeywords={clisp},
-emph={$},
-emphstyle={\color{deepblue}\ttfamily},
-]
-map:
-0 0 0 0 0 
-1 1 0 1 0 
-1 0 0 1 0 
-0 0 1 0 0 
-
-start :(0 0)
-end (3 0)
-
-(S R R D D L D L)
-\end{lstlisting}
-

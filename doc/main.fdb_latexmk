@@ -1,10 +1,10 @@
 # Fdb version 3
-["xdvipdfmx"] 1594550186 "main.xdv" "main.pdf" "main" 1594550187
-  "main.xdv" 1594550186 117900 2ff5f388c029dafe19c9659605b443b1 "xelatex"
+["xdvipdfmx"] 1594918479 "main.xdv" "main.pdf" "main" 1594918479
+  "main.xdv" 1594918479 73472 bf94fe84db04564269012d2750b59e0e "xelatex"
   (generated)
   "main.pdf"
-["xelatex"] 1594550184 "/home/mehran/Projects/lisp/doc/main.tex" "main.xdv" "main" 1594550187
-  "/dev/null" 1594524628 0 d41d8cd98f00b204e9800998ecf8427e ""
+["xelatex"] 1594918477 "/home/mehran/Projects/lisp/doc/main.tex" "main.xdv" "main" 1594918479
+  "/dev/null" 1594868819 0 d41d8cd98f00b204e9800998ecf8427e ""
   "/home/mehran/Projects/lisp/doc/main.tex" 1593584800 419 4f9ac061e609a6c0fe835c248f7eac15 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/map/fontname/texfonts.map" 1511824771 3332 103109f5612ad95229751940c61aada0 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/adobe/zapfding/pzdr.tfm" 1136768653 1528 f853c4d1b4e0550255e02831fdc8496f ""
@@ -25,6 +25,7 @@
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/public/lm/ec-lmr5.tfm" 1254269338 12020 46464c854bf317de2a7a0bbe4a1160ca ""
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/public/lm/ec-lmr8.tfm" 1254269338 12064 a35db870f0b76c338d749c56dc030ef5 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/public/lm/ec-lmr9.tfm" 1254269338 12084 b7f5e4c003de6f57f07c7e9fee73a37c ""
+  "/usr/local/texlive/2019/texmf-dist/fonts/tfm/public/lm/ec-lmri10.tfm" 1254269338 17148 9556e1b5f936b77a796f68d2d559ba99 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/public/lm/ec-lmri12.tfm" 1254269338 17144 271aaf9ebb339934b04110dc5211fba4 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/public/lm/ec-lmtt10.tfm" 1254269338 1372 2ef2c2b492b3c4cd7879fe083abbb061 ""
   "/usr/local/texlive/2019/texmf-dist/fonts/tfm/public/lm/ec-lmtt8.tfm" 1254269338 1380 64228d979098ac090aa3f98d5aa8ad3e ""
@@ -248,13 +249,13 @@
   "/usr/local/texlive/2019/texmf.cnf" 1575639058 455 5b996dcaa0eb4ef14a83b026bc0a008c ""
   "images/Bu_Ali_Sina_University.png" 1591615047 48773 56616fbd3089ff8b4902ca590c646426 ""
   "images/map.png" 1591024720 15337 6b142315a6c398f9e3cf3c3f5c75ac6b ""
-  "main.aux" 1594550186 3677 86d7223fa2e1ca3a86adeb8dd610765e "xelatex"
-  "main.out" 1594550186 432 7e401d50a08a95d874ccd362975434c2 "xelatex"
+  "main.aux" 1594918479 2339 b4a2d01eaa025929aa56cfa2b23dea10 "xelatex"
+  "main.out" 1594918479 207 b829927e48f2aeb6cf7f7fc3e95b55c1 "xelatex"
   "main.tex" 1593584800 419 4f9ac061e609a6c0fe835c248f7eac15 ""
-  "main.toc" 1594550186 550 ee2fa3389c7b36b219278f38addf4a17 "xelatex"
+  "main.toc" 1594918479 289 9f2536001dbe02640faf5fcc6f19afb3 "xelatex"
   "mystyle.sty" 1593509822 5078 b77ee9005022e45cd04c0c39a638a343 ""
   "sections/intro.tex" 1593579546 594 b414d5d5dec484f1f5df8c559d04b860 ""
-  "sections/sec1.tex" 1594550182 8406 7b52ed9bb9196ef0301fd988f13b044a ""
+  "sections/sec1.tex" 1594918474 4722 4a7dde27c99df3928298ee5a9f7f8ebf ""
   "sections/summary.tex" 1593584836 282 98a19f1b94963f86b14f038af00284e9 ""
   (generated)
   "main.toc"
